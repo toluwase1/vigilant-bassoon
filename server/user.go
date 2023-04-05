@@ -7,7 +7,13 @@ import (
 	"lemonadee/types"
 	"log"
 	"net/http"
+	"strings"
 )
+
+type UserRequest struct {
+	Name string `json:"name"`
+	BVN  string `json:"bvn"`
+}
 
 func CreateUser(c *gin.Context) {
 	userR := types.UserRequest{}
@@ -16,6 +22,12 @@ func CreateUser(c *gin.Context) {
 		render.BadRequest(c)
 		return
 	}
+	_, err := validateRequest(userR.Name)
+	if err != nil {
+		render.Error(c, err)
+		return
+	}
+
 	userID, err := createUser(userR)
 	if err != nil {
 		render.Error(c, err)
@@ -67,4 +79,15 @@ func userConsumer() {
 			internal.PushToQueue(internal.UserQueue, v)
 		}
 	}
+}
+
+func validateRequest(name string) (string, *internal.Error) {
+	err := &internal.Error{
+		Message:    "name field cannot be blank",
+		StatusCode: http.StatusBadRequest,
+	}
+	if strings.TrimSpace(name) != "" {
+		return name, nil
+	}
+	return "", err
 }

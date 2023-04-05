@@ -18,9 +18,6 @@ func SaveToDB(tableName string, data any) (string, *Error) {
 	return retrieveID(tableName, data)
 }
 
-func IsUserVerified() {
-
-}
 func GetByID(tableName string, ID string) (any, *Error) {
 	if val, ok := db[tableName]; ok {
 		for _, d := range val {

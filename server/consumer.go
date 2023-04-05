@@ -6,12 +6,11 @@ import (
 )
 
 func Consume() {
-
 	func() {
 		for {
 			log.Println("cronjob running")
-			go userConsumer()
-			go transactionConsumer()
+			userConsumer()
+			transactionConsumer()
 			time.Sleep(30 * time.Second)
 		}
 	}()
