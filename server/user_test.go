@@ -14,14 +14,6 @@ import (
 	"time"
 )
 
-type Data struct {
-	Message   string      `json:"message,omitempty"`
-	Data      interface{} `json:"data,omitempty"`
-	Timestamp string      `json:"timestamp,omitempty"`
-	Errors    string      `json:"errors,omitempty"`
-	Status    string      `json:"status,omitempty"`
-}
-
 func TestCreateUser(t *testing.T) {
 	r := gin.Default()
 	r.POST("/users/create", CreateUser)
