@@ -20,36 +20,6 @@ type Data struct {
 	Status    string      `json:"status,omitempty"`
 }
 
-//func TestCreateUser(t *testing.T) {
-//	// create a test gin context
-//	//r := gin.Default()
-//	w := httptest.NewRecorder()
-//	c, _ := gin.CreateTestContext(w)
-//
-//	// create a user request body
-//	userReq := UserRequest{
-//		Name: "John Doe",
-//		BVN:  "1234567890",
-//	}
-//
-//	// bind the user request body to the gin context
-//	c.Request, _ = http.NewRequest("POST", "/users/create", nil)
-//	c.Request.Header.Set("Content-Type", "application/json")
-//	reqBody, _ := json.Marshal(userReq)
-//	c.Request.Body = ioutil.NopCloser(bytes.NewReader(reqBody))
-//
-//	// call the CreateUser function
-//	CreateUser(c)
-//
-//	// check the response
-//	assert.Equal(t, http.StatusOK, w.Code)
-//	var res map[string]interface{}
-//	json.Unmarshal(w.Body.Bytes(), &res)
-//	assert.Equal(t, "user successfully created", res["message"])
-//	assert.NotNil(t, res["data"])
-//
-//}
-
 func TestCreateUser(t *testing.T) {
 	r := gin.Default()
 	r.POST("/users/create", CreateUser)
