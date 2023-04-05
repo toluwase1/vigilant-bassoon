@@ -1,8 +1,19 @@
 package server
 
-func Consume() {
-	// Set the time interval to 1 minute
+import (
+	"log"
+	"time"
+)
 
-	// Keep the main Goroutine running indefinitely
+func Consume() {
+
+	func() {
+		for {
+			log.Println("cronjob running")
+			go userConsumer()
+			go transactionConsumer()
+			time.Sleep(30 * time.Second)
+		}
+	}()
 	select {}
 }

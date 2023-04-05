@@ -2,10 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/go-co-op/gocron"
-	"lemonadee/internal"
 	"lemonadee/server"
-	"time"
 )
 
 /*
@@ -24,24 +21,10 @@ BONUS: Figure out a way that user will not be verified even if pushed to the ver
 */
 
 func main() {
-	go verificationCronjob()
 	r := gin.Default()
-	r.POST("/user/create", server.CreateUser)
-	r.POST("/transaction/create", server.CreateTransaction)
-	interval := 30 * time.Second
-	go func() {
-		for {
-			server.Consume()
-			time.Sleep(interval)
-		}
-	}()
+	r.POST("/users/create", server.CreateUser)
+	r.POST("/transactions/create", server.CreateTransaction)
+	r.GET("/users", server.GetAllUsers)
+	go server.Consume()
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
-}
-
-func verificationCronjob() {
-	s := gocron.NewScheduler(time.UTC)
-	s.Every(30).Seconds().Do(func() {
-		internal.PushToQueue()
-	})
-	s.StartBlocking()
 }

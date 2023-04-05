@@ -1,11 +1,12 @@
 package internal
 
 import (
+	"fmt"
 	"lemonadee/types"
 	"net/http"
 )
 
-var db map[string][]any
+var db = make(map[string][]any)
 
 const (
 	UserTableName        = "users"
@@ -15,6 +16,25 @@ const (
 func SaveToDB(tableName string, data any) (string, *Error) {
 	db[tableName] = append(db[tableName], data)
 	return retrieveID(tableName, data)
+}
+
+func IsUserVerified() {
+
+}
+func GetByID(tableName string, ID string) (any, *Error) {
+	if val, ok := db[tableName]; ok {
+		for _, d := range val {
+			id, err := retrieveID(tableName, d)
+			if err != nil {
+				return nil, err
+			}
+			if id == ID {
+				return d, nil
+			}
+		}
+	}
+
+	return nil, NewError("not found", http.StatusNotFound)
 }
 
 func UpdateDB(tableName string, item any) *Error {
@@ -39,10 +59,40 @@ func UpdateDB(tableName string, item any) *Error {
 func retrieveID(tableName string, data any) (string, *Error) {
 	switch tableName {
 	case UserTableName:
-		return data.(types.User).ID, nil
+		return types.UserFromDB(data).ID, nil
 	case TransactionTableName:
-		return data.(types.Transactions).ID, nil
+		return types.TransactionFromDB(data).ID, nil
+	}
+	return "", NewError("db error occurred", http.StatusInternalServerError)
+}
+
+func UpdateDbTx(f func() []any, tableName string) *Error {
+	// Begin transaction
+	fmt.Println("Transaction started")
+	// Save a snapshot of the current database state
+	snapshot := make(map[string][]any)
+	for key, value := range db {
+		snapshot[key] = append([]any{}, value...)
+	}
+	// Execute the provided function to get the data to be updated
+	data := f()
+	// Update the database
+	for _, v := range data {
+		err := UpdateDB(tableName, v)
+		if err != nil {
+			fmt.Println("Error: ", err)
+			// Rollback to the snapshot of the database state
+			db = snapshot
+			fmt.Println("Transaction rolled back")
+			return err
+		}
 	}
 
-	return "", NewError("db error occurred", http.StatusInternalServerError)
+	// Commit the transaction
+	fmt.Println("Transaction committed")
+	return nil
+}
+
+func GetAllFromDB(tableName string) []any {
+	return db[tableName]
 }

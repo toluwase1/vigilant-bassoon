@@ -11,7 +11,8 @@ import (
 
 func CreateUser(c *gin.Context) {
 	userR := types.UserRequest{}
-	if err := c.BindJSON(userR); err != nil {
+	if err := c.BindJSON(&userR); err != nil {
+		log.Println("error", err)
 		render.BadRequest(c)
 		return
 	}
@@ -24,6 +25,15 @@ func CreateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "user successfully created",
 		"data":    userID,
+	})
+
+}
+
+func GetAllUsers(c *gin.Context) {
+	users := internal.GetAllFromDB(internal.UserTableName)
+	c.JSON(http.StatusOK, gin.H{
+		"message": "users successfully fetched",
+		"data":    users,
 	})
 
 }
@@ -49,9 +59,12 @@ func verifyUser(user types.User) *internal.Error {
 	return nil
 }
 
-func consume() {
-	user := internal.PopFromQueue(internal.UserQueue)
-	if err := verifyUser(user.(types.User)); err != nil {
-		log.Println("error while verifying user: ", err)
+func userConsumer() {
+	data := internal.GetAllFromQueue(internal.UserQueue)
+	for _, v := range data {
+		if err := verifyUser(types.UserFromDB(v)); err != nil {
+			log.Println("error while processing transaction: ", err)
+			internal.PushToQueue(internal.UserQueue, v)
+		}
 	}
 }

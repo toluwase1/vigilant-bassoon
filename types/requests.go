@@ -10,3 +10,7 @@ type TransactionRequest struct {
 	ToId   string `json:"to_id"`
 	Amount int64  `json:"amount"`
 }
+type TopUpRequest struct {
+	UserId string `json:"user_id"`
+	Amount int64  `json:"amount"`
+}
