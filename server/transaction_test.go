@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-func TestCreateTansactions(t *testing.T) {
+func TestCreateTransactions(t *testing.T) {
 
 	r := gin.Default()
 	r.POST("/transactions/create", CreateUser)
@@ -68,7 +68,7 @@ func TestCreateTansactions(t *testing.T) {
 	}
 }
 
-func loaddb() {
+func loadDB() {
 	user1 := types.User{ID: "1", Name: "John Doe", Balance: 10000, VerificationStatus: true, BVN: "123456789", CreatedAt: time.Now()}
 	user2 := types.User{ID: "2", Name: "Jane Smith", Balance: 5000, VerificationStatus: false, BVN: "987654321", CreatedAt: time.Now()}
 	transaction1 := types.Transactions{ID: "1", FromId: user1.ID, ToId: user2.ID, Amount: 500, Status: "pending", CreatedAt: time.Now(), UpdatedAt: time.Now()}
