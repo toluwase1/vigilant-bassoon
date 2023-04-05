@@ -42,7 +42,11 @@ func CreateUser(c *gin.Context) {
 }
 
 func GetAllUsers(c *gin.Context) {
-	users := internal.GetAllFromDB(internal.UserTableName)
+	users, err := internal.GetAllFromDB(internal.UserTableName)
+	if err != nil {
+		render.Error(c, err)
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"message": "users successfully fetched",
 		"data":    users,

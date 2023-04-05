@@ -90,6 +90,13 @@ func UpdateDbTx(f func() []any, tableName string) *Error {
 	return nil
 }
 
-func GetAllFromDB(tableName string) []any {
-	return db[tableName]
+func GetAllFromDB(tableName string) ([]any, *Error) {
+	err := &Error{
+		Message:    "no user found",
+		StatusCode: http.StatusNotFound,
+	}
+	if len(db[tableName]) == 0 {
+		return nil, err
+	}
+	return db[tableName], nil
 }
