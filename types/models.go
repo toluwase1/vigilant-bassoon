@@ -18,7 +18,7 @@ func NewUser(name, bvn string) User {
 	return User{
 		ID:                 uuid.New().String(),
 		Name:               name,
-		Balance:            0,
+		Balance:            1000, //default balance
 		VerificationStatus: false,
 		BVN:                bvn,
 		CreatedAt:          time.Now(),
