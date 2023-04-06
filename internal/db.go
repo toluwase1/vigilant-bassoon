@@ -100,3 +100,9 @@ func GetAllFromDB(tableName string) ([]any, *Error) {
 	}
 	return db[tableName], nil
 }
+
+func EmptyDB() {
+	for tableName := range db {
+		db[tableName] = nil
+	}
+}

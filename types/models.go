@@ -8,7 +8,8 @@ import (
 type User struct {
 	ID                 string    `json:"id"`
 	Name               string    `json:"name"`
-	Balance            int64     `json:"balance"`
+	AvailableBalance   int64     `json:"available_balance"`
+	PendingBalance     int64     `json:"pending_balance"`
 	VerificationStatus bool      `json:"verification_status"`
 	BVN                string    `json:"bvn"`
 	CreatedAt          time.Time `json:"created_at"`
@@ -18,7 +19,8 @@ func NewUser(name, bvn string) User {
 	return User{
 		ID:                 uuid.New().String(),
 		Name:               name,
-		Balance:            1000, //default balance
+		AvailableBalance:   1000, //default balance
+		PendingBalance:     0,
 		VerificationStatus: false,
 		BVN:                bvn,
 		CreatedAt:          time.Now(),

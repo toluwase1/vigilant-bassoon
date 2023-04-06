@@ -10,11 +10,6 @@ import (
 	"strings"
 )
 
-type UserRequest struct {
-	Name string `json:"name"`
-	BVN  string `json:"bvn"`
-}
-
 func CreateUser(c *gin.Context) {
 	userR := types.UserRequest{}
 	if err := c.BindJSON(&userR); err != nil {

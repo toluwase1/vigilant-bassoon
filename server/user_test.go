@@ -15,6 +15,7 @@ import (
 )
 
 func TestCreateUser(t *testing.T) {
+	defer internal.EmptyDB()
 	r := gin.Default()
 	r.POST("/users/create", CreateUser)
 	expectedRes := gin.H{
@@ -67,6 +68,7 @@ func TestCreateUser(t *testing.T) {
 }
 
 func TestGetAllUsers(t *testing.T) {
+	defer internal.EmptyDB()
 	// Initialize a test router with the GetAllUsers endpoint
 	r := gin.Default()
 	r.GET("/users", GetAllUsers)
@@ -75,7 +77,8 @@ func TestGetAllUsers(t *testing.T) {
 	user1 := types.User{
 		ID:                 "1",
 		Name:               "John Doe",
-		Balance:            10000,
+		AvailableBalance:   10000,
+		PendingBalance:     0,
 		VerificationStatus: true,
 		BVN:                "123456789",
 		CreatedAt:          time.Now(),
@@ -83,7 +86,8 @@ func TestGetAllUsers(t *testing.T) {
 	user2 := types.User{
 		ID:                 "2",
 		Name:               "Jane Smith",
-		Balance:            5000,
+		AvailableBalance:   5000,
+		PendingBalance:     0,
 		VerificationStatus: false,
 		BVN:                "987654321",
 		CreatedAt:          time.Now(),

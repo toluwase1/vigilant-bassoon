@@ -15,7 +15,7 @@ import (
 )
 
 func TestCreateTransactions(t *testing.T) {
-
+	defer internal.EmptyDB()
 	r := gin.Default()
 	r.POST("/transactions/create", CreateUser)
 	expectedRes := gin.H{
@@ -38,18 +38,6 @@ func TestCreateTransactions(t *testing.T) {
 				assert.NotEmpty(t, expectedRes, actualRes)
 			},
 		},
-
-		//{
-		//	name:        "create transactions successful",
-		//	requestBody: types.TransactionRequest{FromId: "John Doe", ToId: "1234567890", Amount: 1000},
-		//	assertions: func(res *httptest.ResponseRecorder, body []byte, err error) {
-		//		assert.Nil(t, err)
-		//		assert.Equal(t, http.StatusOK, res.Code)
-		//		var actualRes gin.H
-		//		assert.NoError(t, json.Unmarshal(body, &actualRes))
-		//		assert.NotEmpty(t, "transaction successfully created", actualRes)
-		//	},
-		//},
 	}
 
 	for _, tc := range testCases {
@@ -69,8 +57,8 @@ func TestCreateTransactions(t *testing.T) {
 }
 
 func loadDB() {
-	user1 := types.User{ID: "1", Name: "John Doe", Balance: 10000, VerificationStatus: true, BVN: "123456789", CreatedAt: time.Now()}
-	user2 := types.User{ID: "2", Name: "Jane Smith", Balance: 5000, VerificationStatus: false, BVN: "987654321", CreatedAt: time.Now()}
+	user1 := types.User{ID: "1", Name: "John Doe", AvailableBalance: 10000, VerificationStatus: true, BVN: "123456789", CreatedAt: time.Now()}
+	user2 := types.User{ID: "2", Name: "Jane Smith", AvailableBalance: 5000, VerificationStatus: false, BVN: "987654321", CreatedAt: time.Now()}
 	transaction1 := types.Transactions{ID: "1", FromId: user1.ID, ToId: user2.ID, Amount: 500, Status: "pending", CreatedAt: time.Now(), UpdatedAt: time.Now()}
 	transaction2 := types.Transactions{ID: "2", FromId: user2.ID, ToId: user1.ID, Amount: 200, Status: "completed", CreatedAt: time.Now(), UpdatedAt: time.Now()}
 	internal.SaveToDB(internal.UserTableName, user1)

@@ -16,7 +16,13 @@ func CreateTransaction(c *gin.Context) {
 		render.BadRequest(c)
 		return
 	}
-	_, err := internal.GetByID(internal.UserTableName, request.ToId)
+
+	_, err := validateAmount(request.Amount)
+	if err != nil {
+		render.Error(c, err)
+		return
+	}
+	_, err = internal.GetByID(internal.UserTableName, request.ToId)
 	if err != nil {
 		render.Error(c, err)
 		return
@@ -44,8 +50,19 @@ func createTransaction(request types.TransactionRequest) (string, *internal.Erro
 		return "", internal.CoverError("server/createTransaction", err)
 	}
 	user := types.UserFromDB(data)
-	if user.Balance < request.Amount {
+	log.Println("before check AvailableBalance", user.AvailableBalance)
+	if user.AvailableBalance < request.Amount {
+		log.Println("insufficient balance", 1)
 		return "", internal.NewError("insufficient balance", http.StatusBadRequest)
+	} else {
+		log.Println("inside else", 2)
+		f := func() []any {
+			user.PendingBalance += request.Amount
+			user.AvailableBalance -= request.Amount
+			return []any{user}
+		}
+		internal.UpdateDbTx(f, internal.UserTableName)
+
 	}
 	if user.VerificationStatus {
 		internal.PushToQueue(internal.TransactionQueue, transaction)
@@ -79,8 +96,8 @@ func processTransaction(transaction types.Transactions) *internal.Error {
 	f := func() []any {
 		transaction.Status = "processed"
 		transaction.UpdatedAt = time.Now()
-		fromUsr.Balance -= transaction.Amount
-		toUsr.Balance += transaction.Amount
+		fromUsr.PendingBalance -= transaction.Amount
+		toUsr.AvailableBalance += transaction.Amount
 		return []any{fromUsr, toUsr}
 	}
 	return internal.UpdateDbTx(f, internal.UserTableName)
@@ -94,4 +111,18 @@ func transactionConsumer() {
 			internal.PushToQueue(internal.TransactionQueue, v)
 		}
 	}
+}
+
+func validateAmount(amount int64) (*int64, *internal.Error) {
+	err := &internal.Error{
+		StatusCode: http.StatusBadRequest,
+	}
+	if amount < 0 {
+		err.Message = "amount cannot be negative"
+		return nil, err
+	} else if amount == 0 {
+		err.Message = "amount cannot be zero"
+		return nil, err
+	}
+	return &amount, nil
 }
